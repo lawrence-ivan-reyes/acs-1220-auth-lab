@@ -98,18 +98,21 @@ def profile(username):
 @login_required
 def favorite_book(book_id):
     book = Book.query.get(book_id)
-    # TODO: If the book is not already in user's favorites, then add it,
-    # commit the change to the database, and flash a success message.
-
-    # Then, redirect the user to the book detail page for the given book.
-    return "Not yet implemented!"
+    if book not in current_user.favorite_books:
+        current_user.favorite_books.append(book)
+        db.session.commit()
+        flash(f'Added {book.title} to favorites!')
+    
+    return redirect(url_for('main.book_detail', book_id=book_id))
 
 
 @main.route('/unfavorite/<book_id>', methods=['POST'])
 @login_required
 def unfavorite_book(book_id):
-    # TODO: If the book is in user's favorites, then remove it,
-    # commit the change to the database, and flash a success message.
-
-    # Then, redirect the user to the book detail page for the given book.
-    return "Not yet implemented!"
+    book = Book.query.get(book_id)
+    if book in current_user.favorite_books:
+        current_user.favorite_books.remove(book)
+        db.session.commit()
+        flash(f'Removed {book.title} from favorites!')
+    
+    return redirect(url_for('main.book_detail', book_id=book_id))
